@@ -17,7 +17,7 @@
 
 package haveno.price.spot;
 
-import bisq.common.config.Config;
+import haveno.common.config.Config;
 import haveno.price.PriceController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

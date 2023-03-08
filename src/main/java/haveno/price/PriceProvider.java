@@ -17,10 +17,8 @@
 
 package haveno.price;
 
-import bisq.common.UserThread;
-
 import org.springframework.context.SmartLifecycle;
-
+import haveno.common.UserThread;
 import java.time.Duration;
 
 import java.util.Timer;
