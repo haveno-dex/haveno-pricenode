@@ -17,6 +17,7 @@
 
 package haveno.price.spot.providers;
 
+import haveno.core.locale.CurrencyUtil;
 import haveno.price.spot.ExchangeRate;
 import haveno.price.spot.ExchangeRateProvider;
 import haveno.price.util.coingecko.CoinGeckoMarketData;
@@ -27,9 +28,6 @@ import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import bisq.core.locale.CurrencyUtil;
-
 import java.time.Duration;
 
 import java.math.BigDecimal;

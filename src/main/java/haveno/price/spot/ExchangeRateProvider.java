@@ -17,8 +17,8 @@
 
 package haveno.price.spot;
 
-import bisq.core.locale.CurrencyUtil;
-import bisq.core.locale.TradeCurrency;
+import haveno.core.locale.CurrencyUtil;
+import haveno.core.locale.TradeCurrency;
 import haveno.price.PriceProvider;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;

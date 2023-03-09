@@ -17,9 +17,8 @@
 
 package haveno.price.util;
 
-import bisq.core.locale.CurrencyUtil;
-import bisq.core.locale.TradeCurrency;
-
+import haveno.core.locale.CurrencyUtil;
+import haveno.core.locale.TradeCurrency;
 import java.util.Set;
 import java.util.stream.Collectors;
 
