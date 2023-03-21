@@ -3,7 +3,7 @@ set -e
 
 # Usage: `$ sudo ./install_pricenode_debian.sh`
 
-echo "[*] Haveno haveno-pricenode installation script"
+echo "[*] haveno-pricenode installation script"
 
 ##### change as necessary for your system
 
@@ -14,15 +14,15 @@ ROOT_USER=root
 ROOT_GROUP=root
 #ROOT_HOME=/root
 
-HAVENO_USER=haveno
-HAVENO_GROUP=haveno
-HAVENO_HOME=/haveno
+PRICENODE_USER=haveno-pricenode
+PRICENODE_GROUP=haveno-pricenode
+PICENODE_HOME=/home/haveno-pricenode
 
-HAVENO_REPO_URL=https://github.com/haveno-dex/haveno-pricenode
-HAVENO_REPO_NAME=haveno-pricenode
-HAVENO_REPO_TAG=main
-HAVENO_LATEST_RELEASE=main
-HAVENO_TORHS=haveno-pricenode
+PRICENODE_REPO_URL=https://github.com/haveno-dex/haveno-pricenode
+PRICENODE_REPO_NAME=haveno-pricenode
+PRICENODE_REPO_TAG=main
+PRICENODE_LATEST_RELEASE=main
+PRICENODE_TORHS=haveno-pricenode
 
 TOR_PKG="tor"
 #TOR_USER=debian-tor
@@ -36,48 +36,40 @@ echo "[*] Upgrading apt packages"
 sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt-get update -q
 sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt-get upgrade -qq -y
 
-echo "[*] Installing Git LFS"
-sudo -H -i -u "${ROOT_USER}" curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-sudo -H -i -u "${ROOT_USER}" apt-get -y install git-lfs
-sudo -H -i -u "${ROOT_USER}" git lfs install
+echo "[*] Installing Haveno dependencies"
+sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt install -qq -y make wget git openjdk-11-jdk
 
 echo "[*] Installing Tor"
 sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt-get install -qq -y "${TOR_PKG}"
 
 echo "[*] Adding Tor configuration"
-if ! grep "${HAVENO_TORHS}" /etc/tor/torrc >/dev/null 2>&1;then
-  sudo -H -i -u "${ROOT_USER}" sh -c "echo HiddenServiceDir ${TOR_RESOURCES}/${HAVENO_TORHS}/ >> ${TOR_CONF}"
+if ! grep "${PRICENODE_TORHS}" /etc/tor/torrc >/dev/null 2>&1;then
+  sudo -H -i -u "${ROOT_USER}" sh -c "echo HiddenServiceDir ${TOR_RESOURCES}/${PRICENODE_TORHS}/ >> ${TOR_CONF}"
   sudo -H -i -u "${ROOT_USER}" sh -c "echo HiddenServicePort 80 127.0.0.1:8078 >> ${TOR_CONF}"
   sudo -H -i -u "${ROOT_USER}" sh -c "echo HiddenServiceVersion 3 >> ${TOR_CONF}"
 fi
 
-echo "[*] Creating Haveno user with Tor access"
-sudo -H -i -u "${ROOT_USER}" useradd -d "${HAVENO_HOME}" -G "${TOR_GROUP}" "${HAVENO_USER}"
+echo "[*] Creating haveno-pricenode user with Tor access"
+sudo -H -i -u "${ROOT_USER}" useradd -d "${PICENODE_HOME}" -G "${TOR_GROUP}" "${PRICENODE_USER}"
 
-echo "[*] Creating Haveno homedir"
-sudo -H -i -u "${ROOT_USER}" mkdir -p "${HAVENO_HOME}"
-sudo -H -i -u "${ROOT_USER}" chown "${HAVENO_USER}":"${HAVENO_GROUP}" ${HAVENO_HOME}
+echo "[*] Creating haveno-pricenode homedir"
+sudo -H -i -u "${ROOT_USER}" mkdir -p "${PICENODE_HOME}"
+sudo -H -i -u "${ROOT_USER}" chown "${PRICENODE_USER}":"${PRICENODE_GROUP}" ${PICENODE_HOME}
 
-echo "[*] Cloning Haveno repo"
-sudo -H -i -u "${HAVENO_USER}" git config --global advice.detachedHead false
-sudo -H -i -u "${HAVENO_USER}" git clone --recursive --branch "${HAVENO_REPO_TAG}" "${HAVENO_REPO_URL}" "${HAVENO_HOME}/${HAVENO_REPO_NAME}"
+echo "[*] Cloning Pricenode repo"
+sudo -H -i -u "${PRICENODE_USER}" git config --global advice.detachedHead false
+sudo -H -i -u "${PRICENODE_USER}" git clone --recursive --branch "${PRICENODE_REPO_TAG}" "${PRICENODE_REPO_URL}" "${PICENODE_HOME}/${PRICENODE_REPO_NAME}"
 
-echo "[*] Installing OpenJDK 11"
-sudo -H -i -u "${ROOT_USER}" apt-get install -qq -y openjdk-11-jdk
+echo "[*] Checking out Pricenode ${PRICENODE_LATEST_RELEASE}"
+sudo -H -i -u "${PRICENODE_USER}" sh -c "cd ${PICENODE_HOME}/${PRICENODE_REPO_NAME} && git checkout ${PRICENODE_LATEST_RELEASE}"
 
-echo "[*] Checking out Haveno ${HAVENO_LATEST_RELEASE}"
-sudo -H -i -u "${HAVENO_USER}" sh -c "cd ${HAVENO_HOME}/${HAVENO_REPO_NAME} && git checkout ${HAVENO_LATEST_RELEASE}"
-
-echo "[*] Performing Git LFS pull"
-sudo -H -i -u "${HAVENO_USER}" sh -c "cd ${HAVENO_HOME}/${HAVENO_REPO_NAME} && git lfs pull"
-
-echo "[*] Building Haveno from source"
+echo "[*] Building haveno-pricenode from source"
 # Redirect from /dev/null is necessary to workaround gradlew non-interactive shell hanging issue.
-sudo -H -i -u "${HAVENO_USER}" sh -c "cd ${HAVENO_HOME}/${HAVENO_REPO_NAME} && ./gradlew build  -x test < /dev/null"
+sudo -H -i -u "${PRICENODE_USER}" sh -c "cd ${PICENODE_HOME}/${PRICENODE_REPO_NAME} && ./gradlew build  -x test < /dev/null"
 
 echo "[*] Installing haveno-pricenode systemd service"
-sudo -H -i -u "${ROOT_USER}" install -c -o "${ROOT_USER}" -g "${ROOT_GROUP}" -m 644 "${HAVENO_HOME}/${HAVENO_REPO_NAME}/scripts/haveno-pricenode.service" "${SYSTEMD_SERVICE_HOME}"
-sudo -H -i -u "${ROOT_USER}" install -c -o "${ROOT_USER}" -g "${ROOT_GROUP}" -m 644 "${HAVENO_HOME}/${HAVENO_REPO_NAME}/scripts/haveno-pricenode.env" "${SYSTEMD_ENV_HOME}"
+sudo -H -i -u "${ROOT_USER}" install -c -o "${ROOT_USER}" -g "${ROOT_GROUP}" -m 644 "${PICENODE_HOME}/${PRICENODE_REPO_NAME}/scripts/haveno-pricenode.service" "${SYSTEMD_SERVICE_HOME}"
+sudo -H -i -u "${ROOT_USER}" install -c -o "${ROOT_USER}" -g "${ROOT_GROUP}" -m 644 "${PICENODE_HOME}/${PRICENODE_REPO_NAME}/scripts/haveno-pricenode.env" "${SYSTEMD_ENV_HOME}"
 
 echo "[*] Reloading systemd daemon configuration"
 sudo -H -i -u "${ROOT_USER}" systemctl daemon-reload
@@ -96,6 +88,6 @@ sleep 5
 
 echo '[*] Done!'
 echo -n '[*] Access your pricenode at http://'
-cat "${TOR_RESOURCES}/${HAVENO_TORHS}/hostname"
+cat "${TOR_RESOURCES}/${PRICENODE_TORHS}/hostname"
 
 exit 0

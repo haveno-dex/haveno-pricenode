@@ -51,7 +51,7 @@ $ ./gradlew clean build
 
 ### Install
 
-Run the one-command installer:
+Make sure you have `curl` installed and then run the one-command installer:
 
 ```bash
 curl -s https://raw.githubusercontent.com/haveno-dex/haveno-pricenode/main/scripts/install_pricenode_debian.sh | sudo bash
@@ -66,6 +66,19 @@ To manually test the endpoint, run the following:
 ``` bash
 curl http://localhost:8078/getAllMarketPrices
 ```
+
+### Install SSL certificate
+
+We want the pricenode to also run on clearnet and to be secured by SSL. To do this we use nginx as reverse proxy:
+
+0. Install nginx
+1. Go to your domain's DNS settings and make sure the subdomain (e.g. pricenode.haveno.exchange) is pointing to the IP of the server/vps hosting the pricenode.
+2. Navigate to the `haveno-pricenode` repository created under the user `haveno-pricenode` and open the nginx configuration file in `scripts/nginx/`. Edit `server_name <DOMAIN_NAME>;`, where `<DOMAIN_NAME>` is the exact subdomain the pricenode will be listening from (e.g. pricenode.haveno.exchange).
+3. Use [certbot](https://certbot.eff.org/) to create an SSL certificate for the domain. In the -conf file you'll find an example of how the configuration created by certbot will look like.
+4. Copy the edited nginx configuration file to `/etc/nginx/conf.d/`
+5. Restart nginx for the changes to have effect (`systemctl restart nginx`)
+
+If everything went fine, your pricenode will be visible on Tor and will also be available on clearnet, secured by SSL.
 
 ### Monitoring
 
