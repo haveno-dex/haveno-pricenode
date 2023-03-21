@@ -5,13 +5,13 @@ After=network.target
 [Service]
 SyslogIdentifier=haveno-pricenode
 EnvironmentFile=/etc/default/haveno-pricenode.env
-ExecStart=/haveno/haveno-pricenode/haveno-pricenode 2
+ExecStart=/home/haveno-pricenode/haveno-pricenode/haveno-pricenode 2
 ExecStop=/bin/kill -TERM ${MAINPID}
 RuntimeMaxSec=24hr
 Restart=always
 
-User=haveno
-Group=haveno
+User=haveno-pricenode
+Group=haveno-pricenode
 
 PrivateTmp=true
 ProtectSystem=full
