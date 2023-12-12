@@ -1,0 +1,63 @@
+/*
+ * This file is part of Haveno.
+ *
+ * Haveno is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * Haveno is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with Haveno. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package haveno.price.util.cryptoya;
+
+import haveno.price.spot.ExchangeRate;
+import haveno.price.spot.providers.CryptoYa;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.Instant;
+import java.util.Optional;
+
+@Getter
+@Setter
+public class CryptoYaTicker {
+
+    private double ask;
+    private double totalAsk;
+
+    private double bid;
+    private double totalBid;
+
+    private long time;
+
+    public Optional<ExchangeRate> toExchangeRate(String exchangeName, Instant newerThan) {
+        if (!CryptoYa.EXCHANGE_NAME_WHITELIST.contains(exchangeName) || isTooOld(newerThan) || isAskZeroOrNegative()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(
+                new ExchangeRate(
+                        "BTC",
+                        "ARS",
+                        ask,
+                        System.currentTimeMillis(),
+                        CryptoYa.PROVIDER_NAME + ": " + exchangeName
+                )
+        );
+    }
+
+    private boolean isTooOld(Instant newerThan) {
+        return time <= newerThan.getEpochSecond();
+    }
+
+    private boolean isAskZeroOrNegative() {
+        return ask <= 0;
+    }
+}

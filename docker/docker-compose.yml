@@ -7,10 +7,10 @@ services:
         restart: unless-stopped
         build:
             context: .
-        image: bisq:pricenode
+        image: haveno:pricenode
         ports:
             - 80:80
-            - 8080:8080
+            - 8078:8078
         environment:
             - BTCAVERAGE_PRIVKEY=!!!!!!!!!!!!!!!!!!!!!!!!! YOUR PRIVATE KEY !!!!!!!!!!!!!!!!!!!!!!!!!!!
             - BTCAVERAGE_PUBKEY=!!!!!!!!!!!!!!!!!!!!!!!!!! YOUR PUBKEY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
