@@ -40,6 +40,7 @@ class ExchangeRateService {
     private final List<ExchangeRateProvider> providers;
     private final List<ExchangeRateTransformer> transformers;
     private final GatedLogging gatedLogging = new GatedLogging();
+    private static final String VERSION = "0.0.2";
 
     /**
      * Construct an {@link ExchangeRateService} with a list of all
@@ -77,6 +78,7 @@ class ExchangeRateService {
         // return result
         LinkedHashMap<String, Object> result = new LinkedHashMap<>(metadata);
         result.put("data", aggregateExchangeRates);
+        result.put("version", VERSION);
         return result;
     }
 
