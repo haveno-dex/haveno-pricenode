@@ -171,6 +171,10 @@ class ExchangeRateService {
                 log.warn("No BTC/{} rate available", rate.getCounterCurrency());
                 return null;
             }
+            if (xmrBtcRate == null) {
+                log.warn("No XMR/BTC rate available");
+                return null;
+            }
             return new ExchangeRate(
                     XMR,
                     rate.getCounterCurrency(),
