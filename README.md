@@ -58,7 +58,7 @@ $ ./gradlew clean build
 Make sure you have `curl` installed and then run the one-command installer:
 
 ```bash
-curl -s https://raw.githubusercontent.com/haveno-dex/haveno-pricenode/main/scripts/install_pricenode_debian.sh | sudo bash
+sudo curl -s https://raw.githubusercontent.com/haveno-dex/haveno-pricenode/main/scripts/install_pricenode_debian.sh | sudo bash
 ```
 
 At the end of the installer script, it should print your Tor onion hostname.
