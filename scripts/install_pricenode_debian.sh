@@ -80,7 +80,7 @@ sudo -H -i -u "${ROOT_USER}" systemctl enable haveno-pricenode.service
 echo "[*] Starting haveno-pricenode service"
 sudo -H -i -u "${ROOT_USER}" systemctl start haveno-pricenode.service
 sleep 5
-sudo -H -i -u "${ROOT_USER}" journalctl --no-pager --unit haveno-pricenode
+#sudo -H -i -u "${ROOT_USER}" journalctl --no-pager --unit haveno-pricenode
 
 echo "[*] Restarting Tor"
 sudo -H -i -u "${ROOT_USER}" service tor restart
