@@ -107,7 +107,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     }
 
     public Set<String> getSupportedCryptoCurrencies() {
-        if (SUPPORTED_CRYPTO_CURRENCIES.isEmpty()) {        // one-time initialization
+        if (SUPPORTED_CRYPTO_CURRENCIES.isEmpty()) { // one-time initialization
             List<String> excludedCryptoCurrencies =
                     Arrays.asList(env.getProperty("haveno.price.cryptocurrency.excluded", "")
                             .toUpperCase().trim().split("\\s*,\\s*"));
@@ -119,7 +119,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                     .map(TradeCurrency::getCode)
                     .filter(ccy -> !validatedExclusionList.contains(ccy.toUpperCase()))
                     .collect(Collectors.toSet());
-            SUPPORTED_CRYPTO_CURRENCIES.add("XMR");        // XMR is skipped because it's a base currency
+            SUPPORTED_CRYPTO_CURRENCIES.add("XMR"); // XMR is skipped because it's a base currency
             log.info("crypto currencies excluded: {}", validatedExclusionList);
             log.info("crypto currencies supported: {}", SUPPORTED_CRYPTO_CURRENCIES.size());
         }
