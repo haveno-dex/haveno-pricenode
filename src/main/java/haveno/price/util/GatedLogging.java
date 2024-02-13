@@ -1,18 +1,18 @@
 /*
- * This file is part of Haveno.
+ * This file is part of Bisq.
  *
- * Haveno is free software: you can redistribute it and/or modify it
+ * Bisq is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or (at
  * your option) any later version.
  *
- * Haveno is distributed in the hope that it will be useful, but WITHOUT
+ * Bisq is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
  * License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with Haveno. If not, see <http://www.gnu.org/licenses/>.
+ * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package haveno.price.util;
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 
-/* Per https://github.com/haveno-network/haveno-pricenode/issues/33
+/* Per https://github.com/bisq-network/bisq-pricenode/issues/33
  * There's too much logging of outlier filtering data, fills up the logs too fast and obliterates other valid logging.
  * It correlates with client requests. Change that logging so its output once per minute.
  */
