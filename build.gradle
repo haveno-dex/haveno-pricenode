@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.spring.boot.starter.webflux)
     implementation libs.javax
 
+    implementation 'io.netty:netty-all'
+
     testAnnotationProcessor libs.lombok
     testCompileOnly libs.lombok
     testImplementation libs.junit.jupiter
