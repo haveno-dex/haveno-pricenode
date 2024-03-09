@@ -37,7 +37,7 @@ sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt-get update -q
 sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt-get upgrade -qq -y
 
 echo "[*] Installing Haveno dependencies"
-sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt install -qq -y make wget git openjdk-11-jdk
+sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt install -qq -y make wget git openjdk-21-jdk
 
 echo "[*] Installing Tor"
 sudo -H -i -u "${ROOT_USER}" DEBIAN_FRONTEND=noninteractive apt-get install -qq -y "${TOR_PKG}"

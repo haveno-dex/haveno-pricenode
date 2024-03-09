@@ -22,7 +22,7 @@ application {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -62,6 +62,7 @@ dependencies {
         exclude group: 'org.slf4j'
     }
     implementation(libs.spring.boot.starter.webflux)
+    implementation libs.javax
 
     testAnnotationProcessor libs.lombok
     testCompileOnly libs.lombok
