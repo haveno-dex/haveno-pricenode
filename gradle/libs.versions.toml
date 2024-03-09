@@ -4,15 +4,16 @@
 # Convention: mark all versions using 'strictly'. This ensures only one version is allowed in the dependency tree, even
 # when multiple versions are attempted to be brought in as transitive dependencies of other requirements.
 [versions]
-junit-jupiter-lib = { strictly = '5.8.2' }
-knowm-xchange-lib = { strictly = '5.0.13' }
-logback-lib = { strictly = '1.2.6' }
-lombok-lib = { strictly = '1.18.22' }
-mockito-lib = { strictly = '4.0.0' }
-slf4j-lib = { strictly = '1.7.36' }
-spring-dependency-management-plugin-lib = { strictly = '1.0.12.RELEASE' }
-spring-plugin-lib = { strictly = '2.5.6' }
-spring-boot-starter-web-lib = { strictly = '2.5.6' }
+junit-jupiter-lib = { strictly = '5.9.2' }
+knowm-xchange-lib = { strictly = '5.0.14' }
+logback-lib = { strictly = '1.5.3' }
+lombok-lib = { strictly = '1.18.30' }
+mockito-lib = { strictly = '5.10.0' }
+slf4j-lib = { strictly = '2.0.12' }
+javax-rs-lib = { strictly = '2.1.1' }
+spring-dependency-management-plugin-lib = { strictly = '1.1.4' }
+spring-plugin-lib = { strictly = '3.2.3' }
+spring-boot-starter-web-lib = { strictly = '3.2.3' }
 
 # Referenced in subproject's build.gradle > dependencies block in the form 'implementation libs.guava'
 # Note: keys can contain dash (protobuf-java) but the dash is replaced by dot when referenced
@@ -35,6 +36,7 @@ logback-core = { module = 'ch.qos.logback:logback-core', version.ref = 'logback-
 logback-classic = { module = 'ch.qos.logback:logback-classic', version.ref = 'logback-lib' }
 lombok = { module = 'org.projectlombok:lombok', version.ref = 'lombok-lib' }
 mockito-core = { module = 'org.mockito:mockito-core', version.ref = 'mockito-lib' }
+javax = { module = 'javax.ws.rs:javax.ws.rs-api', version.ref = 'javax-rs-lib' }
 slf4j-api = { module = 'org.slf4j:slf4j-api', version.ref = 'slf4j-lib' }
 spring-dependency-management-plugin = { module = 'io.spring.gradle:dependency-management-plugin', version.ref = 'spring-dependency-management-plugin-lib' }
 spring-boot-starter-web = { module = 'org.springframework.boot:spring-boot-starter-web', version.ref = 'spring-boot-starter-web-lib' }

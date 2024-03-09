@@ -17,16 +17,12 @@
 
 package haveno.price;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Slf4j
 public abstract class PriceController {
-
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @ModelAttribute
     public void logRequest(HttpServletRequest request) {
