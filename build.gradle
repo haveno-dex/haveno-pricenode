@@ -22,7 +22,7 @@ application {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -67,6 +67,7 @@ dependencies {
     testCompileOnly libs.lombok
     testImplementation libs.junit.jupiter
     testImplementation libs.mockito.core
+    testImplementation libs.byte.buddy
 }
 
 clean.doFirst {
