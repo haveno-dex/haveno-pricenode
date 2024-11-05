@@ -15,7 +15,7 @@
  * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package bisq.price.util.yadio;
+package haveno.price.util;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -15,11 +15,11 @@
  * along with Bisq. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package bisq.price.spot.providers;
+package haveno.price.spot.providers;
 
-import bisq.price.spot.ExchangeRate;
-import bisq.price.spot.ExchangeRateProvider;
-import bisq.price.util.yadio.YadioTicker;
+import haveno.price.spot.ExchangeRate;
+import haveno.price.spot.ExchangeRateProvider;
+import haveno.price.util.YadioTicker;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
@@ -35,8 +35,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.springframework.boot.context.properties.bind.Bindable.setOf;
 
 /**
  * Yadio is used for "marginal market" currencies. Originally thought for:
@@ -134,6 +132,7 @@ class Yadio extends ExchangeRateProvider implements BlueRateProvider {
     private Optional<ExchangeRate> toExchangeRate(String currencySymbol, double price, long timestamp) {
         return Optional.of(
                 new ExchangeRate(
+                        "BTC",
                         currencySymbol,
                         price,
                         timestamp,
