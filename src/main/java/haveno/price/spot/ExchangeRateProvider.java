@@ -135,10 +135,11 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
             SUPPORTED_CRYPTO_CURRENCIES = CurrencyUtil.getAllSortedCryptoCurrencies().stream()
                     .map(TradeCurrency::getCode)
                     .filter(ccy -> !validatedExclusionList.contains(ccy.toUpperCase()))
+                    .map(CurrencyUtil::getCurrencyCodeBase)
                     .collect(Collectors.toSet());
             SUPPORTED_CRYPTO_CURRENCIES.add("XMR"); // XMR is skipped because it's a base currency
             log.info("crypto currencies excluded: {}", validatedExclusionList);
-            log.info("crypto currencies supported: {}", SUPPORTED_CRYPTO_CURRENCIES.size());
+            log.info("crypto currencies supported: {}", SUPPORTED_CRYPTO_CURRENCIES);
         }
         // filter out any provider specific ccy exclusions
         return SUPPORTED_CRYPTO_CURRENCIES.stream()
@@ -176,7 +177,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     @Override
     protected void onRefresh() {
         get().stream()
-                .filter(e -> "USD".equals(e.getCounterCurrency()) || "XMR".equals(e.getBaseCurrency()) || "ETH".equals(e.getBaseCurrency()) || "BCH".equals(e.getBaseCurrency()))
+                .filter(e -> "USD".equals(e.getCounterCurrency()) || "XMR".equals(e.getBaseCurrency()) || "ETH".equals(e.getBaseCurrency()) || "BCH".equals(e.getBaseCurrency()) || "USDT".equals(e.getBaseCurrency()))
                 .forEach(e -> log.info("{}/{}: {}", e.getBaseCurrency(), e.getCounterCurrency(), e.getPrice()));
     }
 
@@ -217,8 +218,10 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
 
         // Find the desired fiat pairs (pair format is CRYPTO-FIAT)
         List<CurrencyPair> desiredFiatPairs = allCurrencyPairsOnExchange.stream()
-                .filter(cp -> cp.base.equals(Currency.BTC) || cp.base.equals(Currency.XMR))
-                .filter(cp -> getSupportedFiatCurrencies().contains(cp.counter.getCurrencyCode()))
+                .filter(cp -> cp.base.equals(Currency.BTC) || (cp.base.equals(Currency.XMR) && !cp.counter.equals(Currency.BTC)))
+                .filter(cp -> getSupportedFiatCurrencies().contains(cp.counter.getCurrencyCode()) ||
+                        // include also stablecoins, which are quoted fiat-like.. see below isInverted()
+                        getSupportedCryptoCurrencies().contains(translateToHavenoCurrency(cp.counter.getCurrencyCode())))
                 .collect(Collectors.toList());
 
         // Find the desired crypto pairs (pair format is CRYPTO-BTC)
@@ -348,7 +351,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                     result.add(new ExchangeRate(
                             translateToHavenoCurrency(t.getCurrencyPair().base.getCurrencyCode()),
                             translateToHavenoCurrency(t.getCurrencyPair().counter.getCurrencyCode()),
-                            t.getLast(),
+                            last,
                             t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
                             this.getName()
                     ));
@@ -383,7 +386,9 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     }
 
     private String translateToHavenoCurrency(String exchangeCurrency) {
-        // until Haveno client code is changed we map between USDT & USDT-E
-        return exchangeCurrency.equalsIgnoreCase("USDT") ? "USDT-E" : exchangeCurrency;
+        return exchangeCurrency; // skip mapping for usdt so it's universal
+
+        // map between USDT and USDT-ERC20
+        //return exchangeCurrency.equalsIgnoreCase("USDT") ? "USDT-ERC20" : exchangeCurrency;
     }
 }
