@@ -299,11 +299,9 @@ class ExchangeRateService {
             for (ExchangeRate providerRate : providerRates) {
                 if (!exchangeRates.containsKey(providerRate.getBaseCurrency())) exchangeRates.put(providerRate.getBaseCurrency(), new HashMap<String, List<ExchangeRate>>());
                 Map<String, List<ExchangeRate>> baseMap = exchangeRates.get(providerRate.getBaseCurrency());
-
-                String currencyCode = providerRate.getCounterCurrency();
-
-                if (!baseMap.containsKey(providerRate.getCounterCurrency())) baseMap.put(providerRate.getCounterCurrency(), new ArrayList<ExchangeRate>());
-                List<ExchangeRate> rates = baseMap.get(providerRate.getCounterCurrency());
+                String counterCurrencyCode = providerRate.getCounterCurrency();
+                if (!baseMap.containsKey(counterCurrencyCode)) baseMap.put(counterCurrencyCode, new ArrayList<ExchangeRate>());
+                List<ExchangeRate> rates = baseMap.get(counterCurrencyCode);
                 rates.add(providerRate);
             }
         }
