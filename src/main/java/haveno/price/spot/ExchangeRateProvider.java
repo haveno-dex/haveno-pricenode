@@ -397,9 +397,12 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     }
 
     private String translateToHavenoCurrency(String exchangeCurrency) {
-        return exchangeCurrency; // skip mapping for usdt so it's universal
+        return exchangeCurrency; // skip mapping for usdt/usdc so they're universal
 
         // map between USDT and USDT-ERC20
         //return exchangeCurrency.equalsIgnoreCase("USDT") ? "USDT-ERC20" : exchangeCurrency;
+
+        // map between USDC and USDC-ERC20
+        //return exchangeCurrency.equalsIgnoreCase("USDC") ? "USDC-ERC20" : exchangeCurrency;
     }
 }
