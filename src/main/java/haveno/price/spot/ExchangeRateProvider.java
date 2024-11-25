@@ -184,7 +184,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     /**
      * @param exchangeClass Class of the {@link Exchange} for which the rates should be
      *                      polled
-     * @return Exchange rates for Haveno-supported fiat currencies and altcoins in the
+     * @return Exchange rates for Haveno-supported fiat currencies and cryptocurrencies in the
      * specified {@link Exchange}
      * @see CurrencyUtil#getAllSortedFiatCurrencies()
      * @see CurrencyUtil#getAllSortedCryptoCurrencies()
@@ -337,24 +337,35 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                     // skip if price not available
                     if (t.getLast() == null) return;
 
+                    // create spot price for base and counter currencies
+                    ExchangeRate rate = null;
                     BigDecimal last = t.getLast();
                     if (isInverted.test(t)) {
-                        // Haveno price format currently expects all altcoins with BTC as the denominator
+                        // Haveno price format currently expects all cryptocurrencies with BTC or XMR as the denominator
                         // most stable coins are quoted as fiat (DAI being an exception on SOME exchanges),
                         // they need have price inverted for Haveno client to handle them properly.
                         last = BigDecimal.valueOf(1.0).divide(last, 8, RoundingMode.HALF_UP);
                         log.info("{} isInverted, price translated from {} to {} for Haveno client.",
                                 t.getCurrencyPair().base.getCurrencyCode() + "/" + t.getCurrencyPair().counter.getCurrencyCode(), t.getLast(), last);
-                    }
-
-                    // create spot price for base and counter currencies
-                    result.add(new ExchangeRate(
+                        rate = new ExchangeRate(
+                            translateToHavenoCurrency(t.getCurrencyPair().counter.getCurrencyCode()),
+                            translateToHavenoCurrency(t.getCurrencyPair().base.getCurrencyCode()),
+                            last,
+                            t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
+                            this.getName()
+                        );
+                    } else {
+                        rate = new ExchangeRate(
                             translateToHavenoCurrency(t.getCurrencyPair().base.getCurrencyCode()),
                             translateToHavenoCurrency(t.getCurrencyPair().counter.getCurrencyCode()),
                             last,
                             t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
                             this.getName()
-                    ));
+                        );
+                    }
+
+                    // add rate to the result set
+                    result.add(rate);
                 });
 
         return result;
