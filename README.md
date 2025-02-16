@@ -32,18 +32,18 @@ This repo has a dependency on git submodule [haveno](https://github.com/haveno-d
 
 ```
 # 1) Use the --recursive option in the clone command:
-$ git clone --recursive https://github.com/haveno-dex/haveno-pricenode.git
+git clone --recursive https://github.com/haveno-dex/haveno-pricenode.git
 
 # 2) Do a normal clone, and pull down the haveno repo dependency with two git submodule commands:
-$ git clone https://github.com/haveno-dex/haveno-pricenode.git
-$ cd haveno-pricenode
-$ git submodule init
-$ git submodule update
+git clone https://github.com/haveno-dex/haveno-pricenode.git
+cd haveno-pricenode
+git submodule init
+git submodule update
 ```
 
 To build:
 ```
-$ ./gradlew clean build
+./gradlew clean build
 ```
 
 ## Run local instance
