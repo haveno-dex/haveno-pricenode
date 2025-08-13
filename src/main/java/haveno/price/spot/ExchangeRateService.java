@@ -58,6 +58,10 @@ class ExchangeRateService {
     private final List<ExchangeRateTransformer> transformers;
     private final GatedLogging gatedLogging = new GatedLogging();
 
+    private static final String BTC = "BTC";
+    private static final String XMR = "XMR";
+    private static final String USD = "USD";
+
     /**
      * Construct an {@link ExchangeRateService} with a list of all
      * {@link ExchangeRateProvider} implementations discovered via classpath scanning.
@@ -120,15 +124,12 @@ class ExchangeRateService {
     }
 
     private ExchangeRate translateExchangeRateToXmr(ExchangeRate rate, Map<String, Map<String, ExchangeRate>> aggregateRates) {
-        String BTC = "BTC";
-        String XMR = "XMR";
-        String USD = "USD";
 
         // invert XMR/BTC rate because XMR is counter currency for crypto pairs
         if (rate.getBaseCurrency().equals(XMR) && rate.getCounterCurrency().equals(BTC)) {
             ExchangeRate xmrRate = aggregateRates.get(XMR).get(rate.getCounterCurrency());
             BigDecimal rateBD = new BigDecimal(xmrRate.getPrice());
-            BigDecimal inverseRate = (rateBD.compareTo(BigDecimal.ZERO) > 0) ? BigDecimal.ONE.divide(rateBD, 8, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+            BigDecimal inverseRate = (rateBD.compareTo(BigDecimal.ZERO) > 0) ? BigDecimal.ONE.divide(rateBD, 12, RoundingMode.HALF_UP) : BigDecimal.ZERO;
             return new ExchangeRate(
                     BTC,
                     XMR,
@@ -161,7 +162,7 @@ class ExchangeRateService {
                 return new ExchangeRate(
                         rate.getBaseCurrency(),
                         XMR,
-                        cryptoBtcRate.getPrice() / xmrBtcRate.getPrice(),
+                        BigDecimal.valueOf(cryptoBtcRate.getPrice()).divide(BigDecimal.valueOf(xmrBtcRate.getPrice()), 12, RoundingMode.HALF_UP).doubleValue(),
                         xmrBtcRate.getTimestamp(),
                         xmrBtcRate.getProvider()
                 );
@@ -175,7 +176,7 @@ class ExchangeRateService {
                 return new ExchangeRate(
                     rate.getBaseCurrency(),
                     XMR,
-                    cryptoUsdRate.getPrice() / xmrUsdRate.getPrice(),
+                    BigDecimal.valueOf(cryptoUsdRate.getPrice()).divide(BigDecimal.valueOf(xmrUsdRate.getPrice()), 12, RoundingMode.HALF_UP).doubleValue(),
                     xmrBtcRate.getTimestamp(),
                     xmrBtcRate.getProvider()
                 );
