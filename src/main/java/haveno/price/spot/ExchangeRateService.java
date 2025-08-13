@@ -111,16 +111,40 @@ class ExchangeRateService {
         aggregateRates.values().stream()
                 .flatMap(m -> m.values().stream())
                 .forEach(r -> {
-                    ExchangeRate rate = translateExchangeRateToXmr(r, aggregateRates);
-                    if (rate == null) return;
-                    if (!xmrAggregateRates.containsKey(rate.getBaseCurrency())) xmrAggregateRates.put(rate.getBaseCurrency(), new HashMap<String, ExchangeRate>());
-                    xmrAggregateRates.get(rate.getBaseCurrency()).put(rate.getCounterCurrency(), rate);
+
+                    // skip if more direct rate is available
+                    if (!isDirectRate(r) && hasDirectRate(r, aggregateRates)) {
+                        return;
+                    }
+
+                    // translate to xmr
+                    ExchangeRate xmrRate = translateExchangeRateToXmr(r, aggregateRates);
+                    if (xmrRate == null) return;
+                    if (!xmrAggregateRates.containsKey(xmrRate.getBaseCurrency())) xmrAggregateRates.put(xmrRate.getBaseCurrency(), new HashMap<String, ExchangeRate>());
+                    if (xmrAggregateRates.containsKey(xmrRate.getBaseCurrency()) && xmrAggregateRates.get(xmrRate.getBaseCurrency()).containsKey(xmrRate.getCounterCurrency())) {
+                        log.warn("Replacing existing rate for {}: old={}, new={}",
+                                xmrRate.getBaseCurrency() + "/" + xmrRate.getCounterCurrency(),
+                                xmrAggregateRates.get(xmrRate.getBaseCurrency()).get(xmrRate.getCounterCurrency()),
+                                xmrRate);
+                    }
+                    xmrAggregateRates.get(xmrRate.getBaseCurrency()).put(xmrRate.getCounterCurrency(), xmrRate);
                 });
 
         // return xmr rates
         return xmrAggregateRates.values().stream()
                 .flatMap(m -> m.values().stream())
                 .collect(Collectors.toList());
+    }
+
+    private boolean isDirectRate(ExchangeRate rate) {
+        return rate.getBaseCurrency().equals(XMR) || rate.getCounterCurrency().equals(XMR);
+    }
+
+    private boolean hasDirectRate(ExchangeRate rate, Map<String, Map<String, ExchangeRate>> aggregateRates) {
+        boolean isCryptoPair = CurrencyUtil.isCryptoCurrency(rate.getCounterCurrency());
+        String baseCurrency = isCryptoPair ? rate.getBaseCurrency() : XMR;
+        String counterCurrency = isCryptoPair ? XMR : rate.getCounterCurrency();
+        return aggregateRates.containsKey(baseCurrency) && aggregateRates.get(baseCurrency).containsKey(counterCurrency);
     }
 
     private ExchangeRate translateExchangeRateToXmr(ExchangeRate rate, Map<String, Map<String, ExchangeRate>> aggregateRates) {
@@ -139,7 +163,7 @@ class ExchangeRateService {
         }
 
         // use direct rate if available
-        if (rate.getBaseCurrency().equals(XMR) || rate.getCounterCurrency().equals(XMR)) return rate;
+        if (isDirectRate(rate)) return rate;
 
         // translate to xmr
         ExchangeRate xmrBtcRate = aggregateRates.containsKey(XMR) ? aggregateRates.get(XMR).get(BTC) : null;
@@ -242,6 +266,11 @@ class ExchangeRateService {
                 if (!aggregateRates.containsKey(baseCurrencyCode)) aggregateRates.put(baseCurrencyCode, new HashMap<String, ExchangeRate>());
                 aggregateRates.get(baseCurrencyCode).put(counterCurrencyCode, aggregateRate);
             });
+        });
+
+        // remove rates with the same base and counter currency
+        aggregateRates.forEach((baseCurrencyCode, counterCurrencyMap) -> {
+            counterCurrencyMap.entrySet().removeIf(entry -> entry.getKey().equals(baseCurrencyCode));
         });
         return aggregateRates;
     }
