@@ -212,19 +212,18 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
         // This will be the intersection of:
         // 1) the pairs available on the exchange, and
         // 2) the pairs Haveno considers relevant / valid
-        // This will result in two lists of desired pairs (fiat and alts)
+        // This will result in two lists of desired pairs (fiat and cryptos)
 
-        // Find the desired fiat pairs (pair format is CRYPTO-FIAT)
+        // Find the desired fiat pairs (pair format is BTC|XMR-FIAT)
         List<Instrument> desiredFiatPairs = allCurrencyPairsOnExchange.stream()
                 .filter(cp -> cp.getBase().equals(Currency.BTC) || (cp.getBase().equals(Currency.XMR) && !cp.getCounter().equals(Currency.BTC)))
                 .filter(cp -> getSupportedFiatCurrencies().contains(cp.getCounter().getCurrencyCode()) ||
                         // include also stablecoins, which are quoted fiat-like.. see below isInverted()
                         getSupportedCryptoCurrencies().contains(translateToHavenoCurrency(cp.getCounter().getCurrencyCode())))
                 .collect(Collectors.toList());
-
-        // Find the desired crypto pairs (pair format is CRYPTO-BTC)
+        // Find the desired crypto pairs (pair format is CRYPTO-BTC|XMR)
         List<Instrument> desiredCryptoPairs = allCurrencyPairsOnExchange.stream()
-                .filter(cp -> cp.getCounter().equals(Currency.BTC))
+                .filter(cp -> cp.getCounter().equals(Currency.BTC) || (cp.getCounter().equals(Currency.XMR) && !cp.getBase().equals(Currency.BTC)))
                 .filter(cp -> getSupportedCryptoCurrencies().contains(cp.getBase().getCurrencyCode()))
                 .collect(Collectors.toList());
 
