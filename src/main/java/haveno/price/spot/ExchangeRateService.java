@@ -187,8 +187,8 @@ class ExchangeRateService {
                         rate.getBaseCurrency(),
                         XMR,
                         BigDecimal.valueOf(cryptoBtcRate.getPrice()).divide(BigDecimal.valueOf(xmrBtcRate.getPrice()), 12, RoundingMode.HALF_UP).doubleValue(),
-                        xmrBtcRate.getTimestamp(),
-                        xmrBtcRate.getProvider()
+                        rate.getTimestamp(),
+                        "Haveno-Aggregate"
                 );
             } else {
                 
@@ -201,8 +201,8 @@ class ExchangeRateService {
                     rate.getBaseCurrency(),
                     XMR,
                     BigDecimal.valueOf(cryptoUsdRate.getPrice()).divide(BigDecimal.valueOf(xmrUsdRate.getPrice()), 12, RoundingMode.HALF_UP).doubleValue(),
-                    xmrBtcRate.getTimestamp(),
-                    xmrBtcRate.getProvider()
+                    rate.getTimestamp(),
+                    "Haveno-Aggregate"
                 );
             }
         } else {
@@ -221,8 +221,8 @@ class ExchangeRateService {
                     XMR,
                     rate.getCounterCurrency(),
                     xmrBtcRate.getPrice() * btcFiatRate.getPrice(),
-                    btcFiatRate.getTimestamp(),
-                    xmrBtcRate.getProvider()
+                    rate.getTimestamp(),
+                    "Haveno-Aggregate"
             );
         }
     }
@@ -251,8 +251,9 @@ class ExchangeRateService {
 
                 // get aggregate rate
                 ExchangeRate aggregateRate;
-                if (exchangeRateList.size() == 1) aggregateRate = exchangeRateList.get(0);
-                else {
+                if (exchangeRateList.size() == 1) {
+                    aggregateRate = exchangeRateList.get(0);
+                } else {
                     double priceAvg = priceAverageWithOutliersRemoved(exchangeRateList, baseCurrencyCode + "/" + counterCurrencyCode, maybeLogDetails);
                     aggregateRate = new ExchangeRate(
                             baseCurrencyCode,
