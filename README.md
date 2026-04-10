@@ -48,7 +48,7 @@ To build:
 
 ## Run local instance
 
-1. `./gradlew build -x test run`
+1. `./gradlew clean build -x test run`
 2. Check prices at http://localhost:8078/getAllMarketPrices
 
 ## How to deploy for production
