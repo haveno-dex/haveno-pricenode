@@ -53,14 +53,7 @@ import java.util.stream.Collectors;
 @Component
 class Poloniex extends ExchangeRateProvider {
 
-    // TODO: intersection with supported currencies
-    //private static final List<String> SUPPORTED_CURRENCIES = List.of("DASH", "DCR", "DOGE", "ETC", "ETH", "LTC", "XMR", "ZEC");
-    private static final List<String> SUPPORTED_CURRENCIES = List.of("ETH", "LTC", "XMR"); 
-    // private static final List<String> POLONIEX_SUPPORTED_CURRENCIES = List.of("DASH", "DCR", "DOGE", "ETC", "ETH", "LTC", "XMR", "ZEC");
-    // private static final List<String> SUPPORTED_CURRENCIES = getSupportedCryptoCurrencies().stream()
-    //         .filter(POLONIEX_SUPPORTED_CURRENCIES::contains)
-    //         .collect(Collectors.toList());
-
+    private static final List<String> SUPPORTED_CURRENCIES = List.of("ETH", "LTC", "XMR", "ZEC");
     private static final String POLONIEX_URL = "https://api.poloniex.com/markets/price";
     private static final String PROVIDER_NAME = "POLO";
     public Poloniex(Environment env) {
