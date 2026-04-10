@@ -172,7 +172,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     @Override
     protected void onRefresh() {
         get().stream()
-                .filter(e -> "USD".equals(e.getCounterCurrency()) || "BTC".equals(e.getBaseCurrency()) || "XMR".equals(e.getBaseCurrency()) || "ETH".equals(e.getBaseCurrency()) || "BCH".equals(e.getBaseCurrency()) || "USDT".equals(e.getBaseCurrency()))
+                .filter(e -> "USD".equals(e.getCounterCurrency()) || "BTC".equals(e.getBaseCurrency()) || "XMR".equals(e.getBaseCurrency()) || "ETH".equals(e.getBaseCurrency()) || "BCH".equals(e.getBaseCurrency()) || "ZEC".equals(e.getBaseCurrency()) || "USDT".equals(e.getBaseCurrency()))
                 .forEach(e -> log.info("{}/{}: {}", e.getBaseCurrency(), e.getCounterCurrency(), e.getPrice()));
     }
 
