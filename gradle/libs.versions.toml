@@ -5,7 +5,7 @@
 # when multiple versions are attempted to be brought in as transitive dependencies of other requirements.
 [versions]
 junit-jupiter-lib = { strictly = '5.9.2' }
-knowm-xchange-lib = { strictly = '5.0.14' }
+knowm-xchange-lib = { strictly = '5.2.4' }
 logback-lib = { strictly = '1.5.3' }
 lombok-lib = { strictly = '1.18.30' }
 mockito-lib = { strictly = '5.10.0' }

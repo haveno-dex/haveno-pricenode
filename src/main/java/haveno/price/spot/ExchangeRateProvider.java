@@ -46,6 +46,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.knowm.xchange.service.marketdata.params.CurrencyPairsParam;
 import org.knowm.xchange.service.marketdata.params.Params;
@@ -76,7 +77,9 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     private static Set<String> SUPPORTED_CRYPTO_CURRENCIES = new HashSet<>();
     private static Set<String> SUPPORTED_FIAT_CURRENCIES = new HashSet<>();
     private final Set<String> providerExclusionList = new HashSet<>();
+    @Getter
     private final String name;
+    @Getter
     private final String prefix;
     private final Environment env;
     @Getter
@@ -96,7 +99,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                 providerExclusionList.add(splits[1]);
             }
         }
-        if (providerExclusionList.size() > 0) {
+        if (!providerExclusionList.isEmpty()) {
             log.info("{} specific exclusion list={}", name, providerExclusionList);
         }
     }
@@ -109,7 +112,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
             String validatedExclusionList = excludedFiatCurrencies.stream()
                     .filter(ccy -> !ccy.isEmpty())
                     .filter(CurrencyUtil::isFiatCurrency)
-                    .collect(Collectors.toList()).toString();
+                    .toList().toString();
             SUPPORTED_FIAT_CURRENCIES = CurrencyUtil.getAllSortedFiatCurrencies().stream()
                     .map(TradeCurrency::getCode)
                     .filter(ccy -> !validatedExclusionList.contains(ccy.toUpperCase()))
@@ -131,7 +134,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
             String validatedExclusionList = excludedCryptoCurrencies.stream()
                     .filter(ccy -> !ccy.isEmpty())
                     .filter(CurrencyUtil::isCryptoCurrency)
-                    .collect(Collectors.toList()).toString();
+                    .toList().toString();
             SUPPORTED_CRYPTO_CURRENCIES = CurrencyUtil.getAllSortedCryptoCurrencies().stream()
                     .map(TradeCurrency::getCode)
                     .filter(ccy -> !validatedExclusionList.contains(ccy.toUpperCase()))
@@ -147,14 +150,6 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                 .collect(Collectors.toSet());
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getPrefix() {
-        return prefix;
-    }
-
     public void maybeClearStaleRates() {
         if (get() == null) {
             return;
@@ -164,8 +159,8 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
         //   (https://github.com/haveno-network/haveno-pricenode/issues/23)
         long staleTimestamp = new Date().getTime() - STALE_PRICE_INTERVAL_MILLIS;
         Set<ExchangeRate> nonStaleRates = get().stream()
-                    .filter(e -> e.getTimestamp() == 0L || e.getTimestamp() > staleTimestamp)
-                    .collect(Collectors.toSet());
+                .filter(e -> e.getTimestamp() == 0L || e.getTimestamp() > staleTimestamp)
+                .collect(Collectors.toSet());
         long numberOriginalRates = get().size();
         if (numberOriginalRates > nonStaleRates.size()) {
             put(nonStaleRates);
@@ -177,7 +172,7 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
     @Override
     protected void onRefresh() {
         get().stream()
-                .filter(e -> "USD".equals(e.getCounterCurrency()) || "XMR".equals(e.getBaseCurrency()) || "ETH".equals(e.getBaseCurrency()) || "BCH".equals(e.getBaseCurrency()) || "USDT".equals(e.getBaseCurrency()))
+                .filter(e -> "USD".equals(e.getCounterCurrency()) || "BTC".equals(e.getBaseCurrency()) || "XMR".equals(e.getBaseCurrency()) || "ETH".equals(e.getBaseCurrency()) || "BCH".equals(e.getBaseCurrency()) || "USDT".equals(e.getBaseCurrency()))
                 .forEach(e -> log.info("{}/{}: {}", e.getBaseCurrency(), e.getCounterCurrency(), e.getPrice()));
     }
 
@@ -208,7 +203,10 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
         MarketDataService marketDataService = exchange.getMarketDataService();
 
         // Retrieve all currency pairs supported by the exchange
-        List<CurrencyPair> allCurrencyPairsOnExchange = exchange.getExchangeSymbols();
+        List<Instrument> allCurrencyPairsOnExchange = exchange.getExchangeInstruments()
+                .stream()
+                .filter(CurrencyPair.class::isInstance)
+                .toList();
 
         // Find out which currency pairs we are interested in polling ("desired pairs")
         // This will be the intersection of:
@@ -217,17 +215,17 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
         // This will result in two lists of desired pairs (fiat and alts)
 
         // Find the desired fiat pairs (pair format is CRYPTO-FIAT)
-        List<CurrencyPair> desiredFiatPairs = allCurrencyPairsOnExchange.stream()
-                .filter(cp -> cp.base.equals(Currency.BTC) || (cp.base.equals(Currency.XMR) && !cp.counter.equals(Currency.BTC)))
-                .filter(cp -> getSupportedFiatCurrencies().contains(cp.counter.getCurrencyCode()) ||
+        List<Instrument> desiredFiatPairs = allCurrencyPairsOnExchange.stream()
+                .filter(cp -> cp.getBase().equals(Currency.BTC) || (cp.getBase().equals(Currency.XMR) && !cp.getCounter().equals(Currency.BTC)))
+                .filter(cp -> getSupportedFiatCurrencies().contains(cp.getCounter().getCurrencyCode()) ||
                         // include also stablecoins, which are quoted fiat-like.. see below isInverted()
-                        getSupportedCryptoCurrencies().contains(translateToHavenoCurrency(cp.counter.getCurrencyCode())))
+                        getSupportedCryptoCurrencies().contains(translateToHavenoCurrency(cp.getCounter().getCurrencyCode())))
                 .collect(Collectors.toList());
 
         // Find the desired crypto pairs (pair format is CRYPTO-BTC)
-        List<CurrencyPair> desiredCryptoPairs = allCurrencyPairsOnExchange.stream()
-                .filter(cp -> cp.counter.equals(Currency.BTC))
-                .filter(cp -> getSupportedCryptoCurrencies().contains(cp.base.getCurrencyCode()))
+        List<Instrument> desiredCryptoPairs = allCurrencyPairsOnExchange.stream()
+                .filter(cp -> cp.getCounter().equals(Currency.BTC))
+                .filter(cp -> getSupportedCryptoCurrencies().contains(cp.getBase().getCurrencyCode()))
                 .collect(Collectors.toList());
 
         // Retrieve in bulk all tickers offered by the exchange
@@ -265,6 +263,8 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                     if (requiresFilterDuringBulkTickerRetrieval()) {
                         return Stream.of(desiredFiatPairs, desiredCryptoPairs)
                                 .flatMap(Collection::stream)
+                                .filter(CurrencyPair.class::isInstance)
+                                .map(CurrencyPair.class::cast)
                                 .collect(Collectors.toList());
                     }
 
@@ -304,12 +304,19 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                                 Thread.sleep(getMarketDataCallDelay());
                             }
 
-                            Ticker ticker = marketDataService.getTicker(cp);
-                            finalTickersRetrievedFromExchange.add(ticker);
-
+                            try {
+                                Ticker ticker = marketDataService.getTicker(cp);
+                                finalTickersRetrievedFromExchange.add(ticker);
+                            } catch (NotYetImplementedForExchangeException ex) {
+                                // use fallback only for this specific pair
+                                if (cp instanceof CurrencyPair) {
+                                    Ticker ticker = marketDataService.getTicker((CurrencyPair) cp);
+                                    finalTickersRetrievedFromExchange.add(ticker);
+                                }
+                            }
                         } catch (IOException | InterruptedException ioException) {
                             ioException.printStackTrace();
-                            log.error("Could not query tickers for " + getName(), e);
+                            log.error("Could not query tickers for {}", getName(), e);
                         }
                     });
         } catch (ExchangeException | // Errors reported by the exchange (rate limit, etc)
@@ -321,15 +328,15 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
             // Catch and handle all other possible exceptions
             // If there was a problem with polling this exchange, return right away,
             // since there are no results to parse and process
-            log.error("Could not query tickers for provider " + getName(), e);
+            log.error("Could not query tickers for provider {}", getName(), e);
             return result;
         }
 
         // Create an ExchangeRate for each desired currency pair ticker that was retrieved
-        Predicate<Ticker> isDesiredFiatPair = t -> desiredFiatPairs.contains(t.getCurrencyPair());
-        Predicate<Ticker> isDesiredCryptoPair = t -> desiredCryptoPairs.contains(t.getCurrencyPair());
-        Predicate<Ticker> isInverted =  t -> desiredFiatPairs.contains(t.getCurrencyPair()) &&
-                getSupportedCryptoCurrencies().contains(translateToHavenoCurrency(t.getCurrencyPair().counter.getCurrencyCode()));
+        Predicate<Ticker> isDesiredFiatPair = t -> desiredFiatPairs.contains(t.getInstrument());
+        Predicate<Ticker> isDesiredCryptoPair = t -> desiredCryptoPairs.contains(t.getInstrument());
+        Predicate<Ticker> isInverted = t -> desiredFiatPairs.contains(t.getInstrument()) &&
+                getSupportedCryptoCurrencies().contains(translateToHavenoCurrency(t.getInstrument().getCounter().getCurrencyCode()));
         tickersRetrievedFromExchange.stream()
                 .filter(isDesiredFiatPair.or(isDesiredCryptoPair)) // Only consider desired pairs
                 .forEach(t -> {
@@ -346,18 +353,18 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                         // they need have price inverted for Haveno client to handle them properly.
                         last = BigDecimal.valueOf(1.0).divide(last, 8, RoundingMode.HALF_UP);
                         log.info("{} isInverted, price translated from {} to {} for Haveno client.",
-                                t.getCurrencyPair().base.getCurrencyCode() + "/" + t.getCurrencyPair().counter.getCurrencyCode(), t.getLast(), last);
+                                t.getInstrument().getBase().getCurrencyCode() + "/" + t.getInstrument().getCounter().getCurrencyCode(), t.getLast(), last);
                         rate = new ExchangeRate(
-                            translateToHavenoCurrency(t.getCurrencyPair().counter.getCurrencyCode()),
-                            translateToHavenoCurrency(t.getCurrencyPair().base.getCurrencyCode()),
+                            translateToHavenoCurrency(t.getInstrument().getCounter().getCurrencyCode()),
+                            translateToHavenoCurrency(t.getInstrument().getBase().getCurrencyCode()),
                             last,
                             t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
                             this.getName()
                         );
                     } else {
                         rate = new ExchangeRate(
-                            translateToHavenoCurrency(t.getCurrencyPair().base.getCurrencyCode()),
-                            translateToHavenoCurrency(t.getCurrencyPair().counter.getCurrencyCode()),
+                            translateToHavenoCurrency(t.getInstrument().getBase().getCurrencyCode()),
+                            translateToHavenoCurrency(t.getInstrument().getCounter().getCurrencyCode()),
                             last,
                             t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
                             this.getName()
