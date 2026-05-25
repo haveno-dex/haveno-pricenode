@@ -220,6 +220,7 @@ public class ExchangeRateServiceTest {
                 buildDummyExchangeRateProviderWithRate("bitstamp", fiatCoin, 20788.0),
                 buildDummyExchangeRateProviderWithRate("bitfinex", fiatCoin, 19780.0), // outlier - low
                 buildDummyExchangeRateProviderWithRate("kraken", fiatCoin, 20795.0),
+                buildDummyExchangeRateProviderWithRate("kucoin", fiatCoin, 20695.0),
                 buildDummyExchangeRateProviderWithRate("coinGecko", fiatCoin, 20774.0),
                 buildDummyExchangeRateProviderWithRate("binance", fiatCoin, 21361.48), // outlier - high
                 buildDummyExchangeRateProviderWithRate("coinbasePro", fiatCoin, 20798.25));
@@ -235,6 +236,7 @@ public class ExchangeRateServiceTest {
                 buildDummyExchangeRateProviderWithRate("bitflyer", altcoin, 0.06262),
                 buildDummyExchangeRateProviderWithRate("bitstamp", altcoin, 0.0625939),
                 buildDummyExchangeRateProviderWithRate("kraken", altcoin, 0.06259),
+                buildDummyExchangeRateProviderWithRate("kucoin", altcoin, 0.06258),
                 buildDummyExchangeRateProviderWithRate("coinGecko", altcoin, 0.06264487),
                 buildDummyExchangeRateProviderWithRate("binance", altcoin, 0.05),   // outlier - low
                 buildDummyExchangeRateProviderWithRate("poloniex", altcoin, 0.07),  // outlier - high

@@ -29,6 +29,7 @@ known-xchange-coinbasepro = { module = 'org.knowm.xchange:xchange-coinbasepro', 
 known-xchange-coinone = { module = 'org.knowm.xchange:xchange-coinone', version.ref = 'knowm-xchange-lib' }
 known-xchange-independentreserve = { module = 'org.knowm.xchange:xchange-independentreserve', version.ref = 'knowm-xchange-lib' }
 known-xchange-kraken = { module = 'org.knowm.xchange:xchange-kraken', version.ref = 'knowm-xchange-lib' }
+known-xchange-kucoin = { module = 'org.knowm.xchange:xchange-kucoin', version.ref = 'knowm-xchange-lib' }
 known-xchange-luno = { module = 'org.knowm.xchange:xchange-luno', version.ref = 'knowm-xchange-lib' }
 known-xchange-mercadobitcoin = { module = 'org.knowm.xchange:xchange-mercadobitcoin', version.ref = 'knowm-xchange-lib' }
 known-xchange-paribu = { module = 'org.knowm.xchange:xchange-paribu', version.ref = 'knowm-xchange-lib' }
@@ -48,7 +49,7 @@ knowm-xchange-libs = [
     'known-xchange-bitflyer', 'known-xchange-bitstamp', 'known-xchange-btcmarkets',
     'known-xchange-coinbasepro', 'known-xchange-coinone',
     'known-xchange-independentreserve',
-    'known-xchange-kraken', 'known-xchange-luno', 'known-xchange-mercadobitcoin', 'known-xchange-paribu'
+    'known-xchange-kraken', 'known-xchange-kucoin', 'known-xchange-luno', 'known-xchange-mercadobitcoin', 'known-xchange-paribu'
 ]
 
 [plugins]
