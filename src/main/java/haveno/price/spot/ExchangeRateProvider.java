@@ -340,37 +340,51 @@ public abstract class ExchangeRateProvider extends PriceProvider<Set<ExchangeRat
                 .filter(isDesiredFiatPair.or(isDesiredCryptoPair)) // Only consider desired pairs
                 .forEach(t -> {
 
-                    // skip if price not available
-                    if (t.getLast() == null) return;
+                    // get price
+                    BigDecimal price = null;
+                    if (t.getBid() != null && t.getAsk() != null) {
+                        price = t.getBid().add(t.getAsk()).divide(BigDecimal.valueOf(2), 16, RoundingMode.HALF_UP); // use midpoint with high precision if available
+                    } else if (t.getLast() != null) {
+                        price = t.getLast(); // fallback to last price
+                    } else {
+                        return;
+                    }
 
-                    // create spot price for base and counter currencies
-                    ExchangeRate rate = null;
-                    BigDecimal last = t.getLast();
+                    // extract base and counter currencies
+                    String baseCode = t.getInstrument().getBase().getCurrencyCode();
+                    String counterCode = t.getInstrument().getCounter().getCurrencyCode();
+                    BigDecimal finalPrice = price;
+                    String finalBaseCode = baseCode;
+                    String finalCounterCode = counterCode;
+
+                    // handle inverted price
                     if (isInverted.test(t)) {
+                        if (price.compareTo(BigDecimal.ZERO) == 0) {
+                            log.warn("Cannot invert midpoint price for {}/{} because it is zero.", baseCode, counterCode);
+                            return;
+                        }
+
                         // Haveno price format currently expects all cryptocurrencies with BTC or XMR as the denominator
                         // most stable coins are quoted as fiat (DAI being an exception on SOME exchanges),
                         // they need have price inverted for Haveno client to handle them properly.
-                        last = BigDecimal.valueOf(1.0).divide(last, 8, RoundingMode.HALF_UP);
-                        log.info("{} isInverted, price translated from {} to {} for Haveno client.",
-                                t.getInstrument().getBase().getCurrencyCode() + "/" + t.getInstrument().getCounter().getCurrencyCode(), t.getLast(), last);
-                        rate = new ExchangeRate(
-                            translateToHavenoCurrency(t.getInstrument().getCounter().getCurrencyCode()),
-                            translateToHavenoCurrency(t.getInstrument().getBase().getCurrencyCode()),
-                            last,
-                            t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
-                            this.getName()
-                        );
-                    } else {
-                        rate = new ExchangeRate(
-                            translateToHavenoCurrency(t.getInstrument().getBase().getCurrencyCode()),
-                            translateToHavenoCurrency(t.getInstrument().getCounter().getCurrencyCode()),
-                            last,
-                            t.getTimestamp() == null ? new Date() : t.getTimestamp(), // some exchanges don't provide timestamps
-                            this.getName()
-                        );
+                        finalPrice = BigDecimal.ONE.divide(price, 16, RoundingMode.HALF_UP);
+                        finalBaseCode = counterCode;
+                        finalCounterCode = baseCode;
+
+                        log.info("{}/{} is inverted, price translated from {} to {} for Haveno client.",
+                                baseCode, counterCode, price, finalPrice);
                     }
 
-                    // add rate to the result set
+                    // create spot price with base and counter currencies
+                    Date rateTimestamp = t.getTimestamp() == null ? new Date() : t.getTimestamp(); // some exchanges don't provide timestamps
+                    ExchangeRate rate = new ExchangeRate(
+                        translateToHavenoCurrency(finalBaseCode),
+                        translateToHavenoCurrency(finalCounterCode),
+                        finalPrice,
+                        rateTimestamp,
+                        this.getName()
+                    );
+
                     result.add(rate);
                 });
 
