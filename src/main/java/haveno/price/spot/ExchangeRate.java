@@ -85,12 +85,26 @@ public class ExchangeRate {
         return this.price;
     }
 
-    @JsonProperty(value = "timestampSec", index = 4)
+    @JsonProperty(value = "timestampMs", index = 4)
     public long getTimestamp() {
         return this.timestamp;
     }
 
-    @JsonProperty(value = "provider", index = 5)
+    /**
+     * Legacy alias of {@link #getTimestamp()}, serialized under the historical "timestampSec"
+     * key. Despite its name it has always carried milliseconds; it is kept only for backward
+     * compatibility with clients that read "timestampSec" and should be removed once those
+     * clients have migrated to "timestampMs".
+     *
+     * @deprecated use {@link #getTimestamp()} ("timestampMs")
+     */
+    @Deprecated
+    @JsonProperty(value = "timestampSec", index = 5)
+    public long getTimestampSecLegacy() {
+        return this.timestamp;
+    }
+
+    @JsonProperty(value = "provider", index = 6)
     public String getProvider() {
         return provider;
     }
