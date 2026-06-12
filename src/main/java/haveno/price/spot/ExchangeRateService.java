@@ -255,11 +255,15 @@ class ExchangeRateService {
                     aggregateRate = exchangeRateList.get(0);
                 } else {
                     double priceAvg = priceAverageWithOutliersRemoved(exchangeRateList, baseCurrencyCode + "/" + counterCurrencyCode, maybeLogDetails);
+                    long aggregateTimestamp = exchangeRateList.stream() // use the most recent timestamp
+                            .mapToLong(ExchangeRate::getTimestamp)
+                            .max()
+                            .getAsLong();
                     aggregateRate = new ExchangeRate(
                             baseCurrencyCode,
                             counterCurrencyCode,
-                            BigDecimal.valueOf(priceAvg),
-                            new Date(),
+                            priceAvg,
+                            aggregateTimestamp,
                             "Haveno-Aggregate");
                 }
 
